@@ -84,9 +84,9 @@ h2 {
 /* 残り時間バー */
 .remaining-time-bar-container {
     width: 100%;
-    height: 60px;
+    height: 100px;
     background: #f0f0f0;
-    border-radius: 30px;
+    border-radius: 50px;
     overflow: hidden;
     position: relative;
     box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -99,7 +99,21 @@ h2 {
     height: 100%;
     background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
     transition: width 0.5s ease;
-    border-radius: 30px;
+    border-radius: 50px;
+}
+
+.remaining-time-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5em;
+    font-weight: bold;
+    color: white;
+    text-shadow: 
+        1px 1px 2px rgba(0, 0, 0, 0.8),
+        -1px -1px 1px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
 }
 
 /* タスクバー */
@@ -156,7 +170,7 @@ h2 {
 
 .time-info {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 15px;
     font-size: 1.2em;
     color: #666;
@@ -185,7 +199,11 @@ h2 {
     }
 
     .remaining-time-bar-container {
-        height: 70px;
+        height: 120px;
+    }
+
+    .remaining-time-text {
+        font-size: 3em;
     }
 
     .tasks-bar-container {
