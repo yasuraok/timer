@@ -79,9 +79,6 @@ function renderTasks() {
     if (!tasksBar) return;
     tasksBar.innerHTML = '';
 
-    // 全タスクの合計時間を計算
-    const totalDuration = tasks.reduce((sum, task) => sum + task.duration, 0);
-
     // バッファー時間セグメントを最初に追加
     if (config && config.bufferMinutes > 0) {
         const bufferSegment = document.createElement('div');
@@ -134,11 +131,7 @@ function renderTasks() {
  * @param {number} taskId - タスクインデックス
  */
 function toggleTask(taskId) {
-    if (completedTasks.has(taskId)) {
-        completedTasks.delete(taskId);
-    } else {
-        completedTasks.add(taskId);
-    }
+    completedTasks.has(taskId) ? completedTasks.delete(taskId) : completedTasks.add(taskId);
     renderTasks();
     updateProgress();
 }
@@ -195,26 +188,21 @@ function updateBufferMessage() {
     const bufferMessage = document.getElementById('bufferMessage');
     if (!bufferMessage) return;
 
-    const completedCount = completedTasks.size;
-    const totalCount = tasks.length;
     const now = new Date();
     const target = getTargetDate();
     const remainingSeconds = Math.floor((target.getTime() - now.getTime()) / 1000);
     const remainingTaskSeconds = getRemainingTaskTime();
-
-    let message = '';
+    const completedCount = completedTasks.size;
+    const totalCount = tasks.length;
 
     // 時間不足の警告を優先表示
-    if (remainingTaskSeconds > remainingSeconds && remainingSeconds > 0) {
-        const shortfall = remainingTaskSeconds - remainingSeconds;
-        message = `⚠️ ${formatDuration(shortfall)} 足りない！`;
-    } else if (completedCount === 0) {
-        message = 'がんばろう！';
-    } else if (completedCount === totalCount) {
-        message = 'よくできました！';
-    } else {
-        message = `あと${totalCount - completedCount}つ！`;
-    }
+    const message = remainingTaskSeconds > remainingSeconds && remainingSeconds > 0
+        ? `⚠️ ${formatDuration(remainingTaskSeconds - remainingSeconds)} 足りない！`
+        : completedCount === 0
+        ? 'がんばろう！'
+        : completedCount === totalCount
+        ? 'よくできました！'
+        : `あと${totalCount - completedCount}つ！`;
 
     bufferMessage.textContent = message;
 }
@@ -243,13 +231,8 @@ function getTargetDate() {
  * @returns {number} 残りタスクの合計秒数
  */
 function getRemainingTaskTime() {
-    let totalMinutes = 0;
-    tasks.forEach((task, index) => {
-        if (!completedTasks.has(index)) {
-            totalMinutes += task.duration;
-        }
-    });
-    return totalMinutes * 60; // 秒に変換
+    return tasks.reduce((total, task, index) =>
+        completedTasks.has(index) ? total : total + task.duration, 0) * 60;
 }
 
 /**
@@ -284,39 +267,29 @@ function updateProgress() {
     }
 }
 
-// タイマーを更新
+/**
+ * タイマーを更新
+ */
 function updateTimer() {
     const now = new Date();
     const target = getTargetDate();
     const remainingSeconds = Math.floor((target.getTime() - now.getTime()) / 1000);
-    const remainingTaskSeconds = getRemainingTaskTime();
 
-    // 現在時刻を表示
+    // 時刻表示を更新
     setText('currentTime', formatTime(now));
-
-    // 目標時刻を表示
     setText('targetTime', formatTimeShort(target));
-
-    // カウントダウン表示
     setText('countdown', formatDuration(remainingSeconds));
-
-    // 残り時間表示
     setText('remainingTime', formatDuration(remainingSeconds));
 
-    // バッファーメッセージを更新
+    // バッファーメッセージとプログレスバーを更新
     updateBufferMessage();
-
-    // プログレスバーを更新
     updateProgress();
 
-    // 時間切れの場合、アラームを鳴らす
+    // アラーム処理
     if (remainingSeconds <= 0 && !alarmPlayed) {
         playAlarm();
         alarmPlayed = true;
-    }
-
-    // 時間が復活した場合、アラームフラグをリセット
-    if (remainingSeconds > 0) {
+    } else if (remainingSeconds > 0) {
         alarmPlayed = false;
     }
 }

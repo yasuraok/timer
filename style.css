@@ -38,12 +38,6 @@ h1 {
     margin-bottom: 20px;
 }
 
-h2 {
-    color: #555;
-    font-size: 1.8em;
-    margin-bottom: 20px;
-}
-
 .time-display {
     display: flex;
     justify-content: center;
@@ -71,14 +65,6 @@ h2 {
     font-size: 4em;
     font-weight: bold;
     color: #764ba2;
-}
-
-.warning-text {
-    font-size: 1.2em;
-    color: #ff4444;
-    font-weight: bold;
-    margin-top: 10px;
-    min-height: 1.5em;
 }
 
 .progress-section {
@@ -182,15 +168,6 @@ h2 {
 .task-duration-label {
     font-size: 0.9em;
     opacity: 0.9;
-}
-
-.time-info {
-    display: flex;
-    justify-content: center;
-    margin-top: 15px;
-    font-size: 1.2em;
-    color: #666;
-    flex-shrink: 0;
 }
 
 /* タブレット横置き対応 */
