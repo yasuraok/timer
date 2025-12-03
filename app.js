@@ -86,25 +86,13 @@ function renderTasks() {
     if (config && config.bufferMinutes > 0) {
         const bufferSegment = document.createElement('div');
         bufferSegment.className = 'task-segment buffer-segment';
+        bufferSegment.id = 'bufferSegment';
         bufferSegment.style.backgroundColor = '#e0e0e0';
         bufferSegment.style.flex = `${config.bufferMinutes} 1 0`;
 
-        // 状況に応じたメッセージを表示
-        const completedCount = completedTasks.size;
-        const totalCount = tasks.length;
-        let message = '';
-        
-        if (completedCount === 0) {
-            message = 'がんばろう！';
-        } else if (completedCount === totalCount) {
-            message = 'よくできました！';
-        } else {
-            message = `あと${totalCount - completedCount}つ！`;
-        }
-
         bufferSegment.innerHTML = `
             <div class="task-name-label">余裕</div>
-            <div class="task-duration-label">${message}</div>
+            <div class="task-duration-label" id="bufferMessage">がんばろう！</div>
         `;
 
         tasksBar.appendChild(bufferSegment);
@@ -201,6 +189,37 @@ function setText(id, text) {
 }
 
 /**
+ * バッファーメッセージを更新
+ */
+function updateBufferMessage() {
+    const bufferMessage = document.getElementById('bufferMessage');
+    if (!bufferMessage) return;
+
+    const completedCount = completedTasks.size;
+    const totalCount = tasks.length;
+    const now = new Date();
+    const target = getTargetDate();
+    const remainingSeconds = Math.floor((target.getTime() - now.getTime()) / 1000);
+    const remainingTaskSeconds = getRemainingTaskTime();
+
+    let message = '';
+
+    // 時間不足の警告を優先表示
+    if (remainingTaskSeconds > remainingSeconds && remainingSeconds > 0) {
+        const shortfall = remainingTaskSeconds - remainingSeconds;
+        message = `⚠️ ${formatDuration(shortfall)} 足りない！`;
+    } else if (completedCount === 0) {
+        message = 'がんばろう！';
+    } else if (completedCount === totalCount) {
+        message = 'よくできました！';
+    } else {
+        message = `あと${totalCount - completedCount}つ！`;
+    }
+
+    bufferMessage.textContent = message;
+}
+
+/**
  * 目標時刻を取得
  * @returns {Date} 目標時刻
  */
@@ -281,14 +300,11 @@ function updateTimer() {
     // カウントダウン表示
     setText('countdown', formatDuration(remainingSeconds));
 
-    // 残り時間とタスク合計時間を表示
+    // 残り時間表示
     setText('remainingTime', formatDuration(remainingSeconds));
-    setText('totalTaskTime', formatDuration(remainingTaskSeconds));
 
-    // 警告メッセージ
-    const isWarning = remainingTaskSeconds > remainingSeconds && remainingSeconds > 0;
-    const warningMessage = isWarning ? `⚠️ 時間が ${formatDuration(remainingTaskSeconds - remainingSeconds)} 足りません！` : '';
-    setText('warningText', warningMessage);
+    // バッファーメッセージを更新
+    updateBufferMessage();
 
     // プログレスバーを更新
     updateProgress();
