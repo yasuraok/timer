@@ -82,6 +82,34 @@ function renderTasks() {
     // 全タスクの合計時間を計算
     const totalDuration = tasks.reduce((sum, task) => sum + task.duration, 0);
 
+    // バッファー時間セグメントを最初に追加
+    if (config && config.bufferMinutes > 0) {
+        const bufferSegment = document.createElement('div');
+        bufferSegment.className = 'task-segment buffer-segment';
+        bufferSegment.style.backgroundColor = '#e0e0e0';
+        bufferSegment.style.flexGrow = config.bufferMinutes.toString();
+
+        // 状況に応じたメッセージを表示
+        const completedCount = completedTasks.size;
+        const totalCount = tasks.length;
+        let message = '';
+        
+        if (completedCount === 0) {
+            message = 'がんばろう！';
+        } else if (completedCount === totalCount) {
+            message = 'よくできました！';
+        } else {
+            message = `あと${totalCount - completedCount}つ！`;
+        }
+
+        bufferSegment.innerHTML = `
+            <div class="task-name-label">余裕</div>
+            <div class="task-duration-label">${message}</div>
+        `;
+
+        tasksBar.appendChild(bufferSegment);
+    }
+
     // タスクをソート: 1. 完了済みが左、未完了が右 2. 元の定義順
     const sortedTaskIndices = tasks
         .map((task, index) => ({ task, index }))
