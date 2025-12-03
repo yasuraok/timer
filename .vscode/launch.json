@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node-terminal",
+            "request": "launch",
+            "name": "開発サーバー起動",
+            "command": "python3 -m http.server 8000",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
