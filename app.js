@@ -87,7 +87,7 @@ function renderTasks() {
         const bufferSegment = document.createElement('div');
         bufferSegment.className = 'task-segment buffer-segment';
         bufferSegment.style.backgroundColor = '#e0e0e0';
-        bufferSegment.style.flexGrow = config.bufferMinutes.toString();
+        bufferSegment.style.flex = `${config.bufferMinutes} 1 0`;
 
         // 状況に応じたメッセージを表示
         const completedCount = completedTasks.size;
@@ -128,7 +128,7 @@ function renderTasks() {
             segment.classList.add('completed');
         }
         segment.style.backgroundColor = task.color;
-        segment.style.flexGrow = task.duration.toString();
+        segment.style.flex = `${task.duration} 1 0`;
 
         segment.innerHTML = `
             <div class="task-name-label">${task.name}</div>
