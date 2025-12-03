@@ -2,7 +2,7 @@
   "name": "登校タイマー",
   "short_name": "タイマー",
   "description": "登校までのタスク管理タイマー",
-  "start_url": "/",
+  "start_url": "./",
   "display": "fullscreen",
   "background_color": "#667eea",
   "theme_color": "#667eea",
