@@ -277,22 +277,7 @@ function updateProgress() {
     }
 }
 
-/**
- * 残り時間バーのテキストサイズをバーの高さに基づいて設定
- */
-function updateRemainingTimeTextSize() {
-    const container = document.getElementById('remainingTimeBar');
-    const textElement = document.getElementById('remainingTime');
-    if (!container || !textElement) return;
 
-    // バーコンテナの高さを取得
-    const containerHeight = container.parentElement?.offsetHeight || 0;
-    if (containerHeight === 0) return;
-
-    // バーの高さの70%をフォントサイズに設定（余白を考慮）
-    const fontSize = containerHeight * 0.7;
-    textElement.style.fontSize = `${fontSize}px`;
-}
 
 /**
  * タイマーを更新
@@ -306,9 +291,6 @@ function updateTimer() {
     setText('currentTime', formatTime(now));
     setText('targetTime', formatTimeShort(target));
     setText('remainingTime', formatDuration(remainingSeconds));
-
-    // 残り時間テキストのサイズを更新
-    updateRemainingTimeTextSize();
 
     // バッファーメッセージとプログレスバーを更新
     updateBufferMessage();
