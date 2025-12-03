@@ -328,5 +328,24 @@ function startTimer() {
     timerInterval = setInterval(updateTimer, 1000); // 1秒ごとに更新
 }
 
+// 全画面表示の切り替え
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        // 全画面表示にする
+        document.documentElement.requestFullscreen();
+    } else {
+        // 全画面表示を解除
+        document.exitFullscreen();
+    }
+}
+
 // ページ読み込み時に初期化
-window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('DOMContentLoaded', () => {
+    init();
+
+    // 全画面ボタンのイベントリスナー
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+    }
+});
