@@ -7,31 +7,30 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="timer-section">
-            <h1>登校タイマー</h1>
-            <div class="time-display">
-                <span class="current-time">今の時間 <span id="currentTime">--:--:--</span></span>
-                <span class="target-time">出る時間 <span id="targetTime">--:--:--</span></span>
-            </div>
-            <div class="countdown-display">
-                <div class="countdown-text" id="countdown">--:--</div>
-            </div>
+    <div class="timer-section">
+        <h1>登校タイマー</h1>
+        <div class="time-display">
+            <span class="current-time">今の時間 <span id="currentTime">--:--:--</span></span>
+            <span class="target-time">出る時間 <span id="targetTime">--:--:--</span></span>
+        </div>
+    </div>
+
+    <div class="progress-section">
+        <!-- 残り時間バー -->
+        <div class="remaining-time-bar-container">
+            <div class="remaining-time-bar" id="remainingTimeBar"></div>
+            <div class="remaining-time-text" id="remainingTime">--:--</div>
         </div>
 
-        <div class="progress-section">
-            <!-- 残り時間バー -->
-            <div class="remaining-time-bar-container">
-                <div class="remaining-time-bar" id="remainingTimeBar"></div>
-                <div class="remaining-time-text" id="remainingTime">--:--</div>
+        <!-- タスクバー -->
+        <div class="tasks-bar-container">
+            <!-- バッファーセグメント -->
+            <div class="buffer-segment-container" id="bufferSegmentContainer">
+                <div class="buffer-message" id="bufferMessage">がんばろう！</div>
             </div>
-
-            <!-- タスクバー -->
-            <div class="tasks-bar-container">
-                <div class="tasks-bar" id="tasksBar"></div>
-            </div>
+            <!-- タスクセグメント -->
+            <div class="tasks-bar" id="tasksBar"></div>
         </div>
-
     </div>
 
     <audio id="alarmAudio" preload="auto">

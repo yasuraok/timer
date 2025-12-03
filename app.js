@@ -79,21 +79,8 @@ function renderTasks() {
     if (!tasksBar) return;
     tasksBar.innerHTML = '';
 
-    // バッファー時間セグメントを最初に追加
-    if (config && config.bufferMinutes > 0) {
-        const bufferSegment = document.createElement('div');
-        bufferSegment.className = 'task-segment buffer-segment';
-        bufferSegment.id = 'bufferSegment';
-        bufferSegment.style.backgroundColor = '#e0e0e0';
-        bufferSegment.style.flex = `${config.bufferMinutes} 1 0`;
-
-        bufferSegment.innerHTML = `
-            <div class="task-name-label">余裕</div>
-            <div class="task-duration-label" id="bufferMessage">がんばろう！</div>
-        `;
-
-        tasksBar.appendChild(bufferSegment);
-    }
+    // バッファーセグメントの幅を設定
+    updateBufferSegmentWidth();
 
     // タスクをソート: 1. 完了済みが左、未完了が右 2. 元の定義順
     const sortedTaskIndices = tasks
@@ -115,15 +102,36 @@ function renderTasks() {
         segment.style.backgroundColor = task.color;
         segment.style.flex = `${task.duration} 1 0`;
 
+        // 改行を<br>に変換
+        const taskNameWithBreaks = task.name.replace(/\n/g, '<br>');
+
         segment.innerHTML = `
-            <div class="task-name-label">${task.name}</div>
-            <div class="task-duration-label">${task.duration}分</div>
+            <div class="task-name-label">${taskNameWithBreaks}</div>
+            <div class="task-duration-label task-time">${task.duration}分</div>
         `;
 
         segment.onclick = () => toggleTask(index);
 
         tasksBar.appendChild(segment);
     });
+}
+
+/**
+ * バッファーセグメントの幅を設定
+ */
+function updateBufferSegmentWidth() {
+    const bufferContainer = document.getElementById('bufferSegmentContainer');
+    if (!bufferContainer || !config) return;
+
+    const totalMinutes = getTotalTaskTime() / 60 + (config.bufferMinutes || 0);
+    if (totalMinutes === 0) {
+        bufferContainer.style.display = 'none';
+        return;
+    }
+
+    const widthPercent = ((config.bufferMinutes || 0) / totalMinutes) * 100;
+    bufferContainer.style.flex = `0 0 ${widthPercent}%`;
+    bufferContainer.style.display = widthPercent > 0 ? 'flex' : 'none';
 }
 
 /**
@@ -195,10 +203,12 @@ function updateBufferMessage() {
     const completedCount = completedTasks.size;
     const totalCount = tasks.length;
 
-    // 時間不足の警告を優先表示
-    const message = remainingTaskSeconds > remainingSeconds && remainingSeconds > 0
-        ? `⚠️ ${formatDuration(remainingTaskSeconds - remainingSeconds)} 足りない！`
-        : completedCount === 0
+    // 時間不足の場合は文字色を赤に変更
+    const isTimeLacking = remainingTaskSeconds > remainingSeconds && remainingSeconds > 0;
+    bufferMessage.style.color = isTimeLacking ? '#ff0000' : '#666';
+
+    // メッセージを設定
+    const message = completedCount === 0
         ? 'がんばろう！'
         : completedCount === totalCount
         ? 'よくできました！'
@@ -268,6 +278,23 @@ function updateProgress() {
 }
 
 /**
+ * 残り時間バーのテキストサイズをバーの高さに基づいて設定
+ */
+function updateRemainingTimeTextSize() {
+    const container = document.getElementById('remainingTimeBar');
+    const textElement = document.getElementById('remainingTime');
+    if (!container || !textElement) return;
+
+    // バーコンテナの高さを取得
+    const containerHeight = container.parentElement?.offsetHeight || 0;
+    if (containerHeight === 0) return;
+
+    // バーの高さの70%をフォントサイズに設定（余白を考慮）
+    const fontSize = containerHeight * 0.7;
+    textElement.style.fontSize = `${fontSize}px`;
+}
+
+/**
  * タイマーを更新
  */
 function updateTimer() {
@@ -278,8 +305,10 @@ function updateTimer() {
     // 時刻表示を更新
     setText('currentTime', formatTime(now));
     setText('targetTime', formatTimeShort(target));
-    setText('countdown', formatDuration(remainingSeconds));
     setText('remainingTime', formatDuration(remainingSeconds));
+
+    // 残り時間テキストのサイズを更新
+    updateRemainingTimeTextSize();
 
     // バッファーメッセージとプログレスバーを更新
     updateBufferMessage();
@@ -305,10 +334,9 @@ function playAlarm() {
     });
 
     // 視覚的なアラート
-    const countdownEl = document.getElementById('countdown');
-    if (countdownEl) {
-        countdownEl.style.color = '#ff0000';
-        countdownEl.textContent = '時間です！';
+    const remainingTimeEl = document.getElementById('remainingTime');
+    if (remainingTimeEl) {
+        remainingTimeEl.style.color = '#ff0000';
     }
 }
 
