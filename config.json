@@ -1,5 +1,6 @@
 {
   "targetTime": "08:00",
+  "bufferMinutes": 5,
   "tasks": [
     {
       "name": "薬飲む",

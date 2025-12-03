@@ -81,7 +81,29 @@ h2 {
     margin-bottom: 40px;
 }
 
-.progress-bar-container {
+/* 残り時間バー */
+.remaining-time-bar-container {
+    width: 100%;
+    height: 60px;
+    background: #f0f0f0;
+    border-radius: 30px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.remaining-time-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.5s ease;
+    border-radius: 30px;
+}
+
+/* タスクバー */
+.tasks-bar-container {
     width: 100%;
     height: 80px;
     background: #f0f0f0;
@@ -91,15 +113,45 @@ h2 {
     box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.progress-bar {
+.tasks-bar {
     height: 100%;
     display: flex;
-    transition: width 0.3s ease;
+    flex-wrap: nowrap;
 }
 
-.progress-segment {
+.task-segment {
     height: 100%;
-    transition: width 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease, flex-grow 0.5s ease, order 0.5s ease;
+    cursor: pointer;
+    position: relative;
+    padding: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.task-segment.completed {
+    background-color: #ccc !important;
+    opacity: 0.6;
+}
+
+.task-segment:hover:not(.completed) {
+    filter: brightness(1.1);
+}
+
+.task-name-label {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.task-duration-label {
+    font-size: 0.9em;
+    opacity: 0.9;
 }
 
 .time-info {
@@ -108,77 +160,6 @@ h2 {
     margin-top: 15px;
     font-size: 1.2em;
     color: #666;
-}
-
-.tasks-section {
-    margin-top: 30px;
-}
-
-.tasks-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.task-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    border-left: 5px solid #ccc;
-    transition: all 0.3s ease;
-    flex: 1 1 calc(50% - 10px);
-    min-width: 300px;
-}
-
-.task-item.completed {
-    opacity: 0.5;
-    text-decoration: line-through;
-}
-
-.task-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.task-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-}
-
-.task-name {
-    font-size: 1.3em;
-    font-weight: 500;
-    color: #333;
-}
-
-.task-duration {
-    font-size: 1.1em;
-    color: #666;
-}
-
-.task-button {
-    padding: 10px 20px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background 0.3s ease;
-}
-
-.task-button:hover {
-    background: #764ba2;
-}
-
-.task-button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
 }
 
 /* タブレット横置き対応 */
@@ -203,15 +184,11 @@ h2 {
         font-size: 5em;
     }
 
-    .progress-bar-container {
+    .remaining-time-bar-container {
+        height: 70px;
+    }
+
+    .tasks-bar-container {
         height: 100px;
-    }
-
-    .task-item {
-        padding: 25px;
-    }
-
-    .task-name {
-        font-size: 1.5em;
     }
 }

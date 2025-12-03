@@ -21,19 +21,22 @@
         </div>
 
         <div class="progress-section">
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progressBar"></div>
+            <!-- 残り時間バー -->
+            <div class="remaining-time-bar-container">
+                <div class="remaining-time-bar" id="remainingTimeBar"></div>
             </div>
+
+            <!-- タスクバー -->
+            <div class="tasks-bar-container">
+                <div class="tasks-bar" id="tasksBar"></div>
+            </div>
+
             <div class="time-info">
                 <span>残り時間: <span id="remainingTime">--:--</span></span>
                 <span>やること合計: <span id="totalTaskTime">--:--</span></span>
             </div>
         </div>
 
-        <div class="tasks-section">
-            <h2>やること</h2>
-            <div class="tasks-list" id="tasksList"></div>
-        </div>
     </div>
 
     <audio id="alarmAudio" preload="auto">

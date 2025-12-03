@@ -10,6 +10,7 @@
 /**
  * @typedef {Object} Config
  * @property {string} targetTime - 目標時刻 (HH:MM形式)
+ * @property {number} bufferMinutes - 余剰時間（分）
  * @property {Task[]} tasks - タスクリスト
  * @property {string} alarmSound - アラーム音ファイル名
  */
@@ -71,42 +72,57 @@ async function init() {
 }
 
 /**
- * タスクリストを描画
+ * タスクバーを描画
  */
 function renderTasks() {
-    const tasksList = document.getElementById('tasksList');
-    if (!tasksList) return;
-    tasksList.innerHTML = '';
+    const tasksBar = document.getElementById('tasksBar');
+    if (!tasksBar) return;
+    tasksBar.innerHTML = '';
 
-    tasks.forEach((task, index) => {
-        const taskItem = document.createElement('div');
-        taskItem.className = 'task-item';
+    // 全タスクの合計時間を計算
+    const totalDuration = tasks.reduce((sum, task) => sum + task.duration, 0);
+
+    // タスクをソート: 1. 完了済みが左、未完了が右 2. 元の定義順
+    const sortedTaskIndices = tasks
+        .map((task, index) => ({ task, index }))
+        .sort((a, b) => {
+            const aCompleted = completedTasks.has(a.index);
+            const bCompleted = completedTasks.has(b.index);
+            if (aCompleted && !bCompleted) return -1;
+            if (!aCompleted && bCompleted) return 1;
+            return a.index - b.index;
+        });
+
+    sortedTaskIndices.forEach(({ task, index }) => {
+        const segment = document.createElement('div');
+        segment.className = 'task-segment';
         if (completedTasks.has(index)) {
-            taskItem.classList.add('completed');
+            segment.classList.add('completed');
         }
-        taskItem.style.borderLeftColor = task.color;
+        segment.style.backgroundColor = task.color;
+        segment.style.flexGrow = task.duration.toString();
 
-        taskItem.innerHTML = `
-            <div class="task-info">
-                <div class="task-color" style="background-color: ${task.color}"></div>
-                <div class="task-name">${task.name}</div>
-                <div class="task-duration">${task.duration}分</div>
-            </div>
-            <button class="task-button" onclick="completeTask(${index})" ${completedTasks.has(index) ? 'disabled' : ''}>
-                ${completedTasks.has(index) ? '完了' : '終わった！'}
-            </button>
+        segment.innerHTML = `
+            <div class="task-name-label">${task.name}</div>
+            <div class="task-duration-label">${task.duration}分</div>
         `;
 
-        tasksList.appendChild(taskItem);
+        segment.onclick = () => toggleTask(index);
+
+        tasksBar.appendChild(segment);
     });
 }
 
 /**
- * タスクを完了する
+ * タスクの完了/未完了をトグル
  * @param {number} taskId - タスクインデックス
  */
-function completeTask(taskId) {
-    completedTasks.add(taskId);
+function toggleTask(taskId) {
+    if (completedTasks.has(taskId)) {
+        completedTasks.delete(taskId);
+    } else {
+        completedTasks.add(taskId);
+    }
     renderTasks();
     updateProgress();
 }
@@ -190,31 +206,35 @@ function getRemainingTaskTime() {
 }
 
 /**
+ * 全タスクの合計時間を計算（秒単位）
+ * @returns {number} 全タスクの合計秒数
+ */
+function getTotalTaskTime() {
+    const totalMinutes = tasks.reduce((sum, task) => sum + task.duration, 0);
+    return totalMinutes * 60; // 秒に変換
+}
+
+/**
  * プログレスバーを更新
  */
 function updateProgress() {
-    const progressBar = document.getElementById('progressBar');
-    if (!progressBar) return;
-    progressBar.innerHTML = '';
+    const remainingTimeBar = document.getElementById('remainingTimeBar');
+    if (!remainingTimeBar || !config) return;
 
     const now = new Date();
     const target = getTargetDate();
-    const totalSeconds = Math.floor((target.getTime() - now.getTime()) / 1000);
+    const remainingSeconds = Math.floor((target.getTime() - now.getTime()) / 1000);
+    const totalTaskSeconds = getTotalTaskTime();
+    const bufferSeconds = (config.bufferMinutes || 0) * 60;
 
-    if (totalSeconds <= 0) return;
-
-    // 未完了のタスクのみでプログレスバーを構成
-    tasks.forEach((task, index) => {
-        if (!completedTasks.has(index)) {
-            const segment = document.createElement('div');
-            segment.className = 'progress-segment';
-            segment.style.backgroundColor = task.color;
-            const taskSeconds = task.duration * 60;
-            const widthPercent = (taskSeconds / totalSeconds) * 100;
-            segment.style.width = `${widthPercent}%`;
-            progressBar.appendChild(segment);
-        }
-    });
+    // 残り時間バーの幅を計算（全タスク合計時間 + バッファー時間を１００％とする）
+    const totalTimeWithBuffer = totalTaskSeconds + bufferSeconds;
+    if (totalTimeWithBuffer > 0) {
+        const widthPercent = Math.min(100, (remainingSeconds / totalTimeWithBuffer) * 100);
+        remainingTimeBar.style.width = `${widthPercent}%`;
+    } else {
+        remainingTimeBar.style.width = '0%';
+    }
 }
 
 // タイマーを更新
